@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd 
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+   
+      
+	<flow name="poc9-main">
+        <http:listener config-ref="poc9-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="poc9-config" />
+		<error-handler ref="error" />
+       
+    </flow>
+    <flow name="poc9-console">
+        <http:listener config-ref="poc9-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="poc9-config" />
+		<error-handler ref="error" />
+    </flow>
+    <flow name="post:\resource:poc9-config">
+		<logger level="INFO" doc:name="Logger" doc:id="0db50bb1-9968-4071-bc21-b892053e21e6" message='#["before logger"]'/>
+		<choice doc:name="Choice" doc:id="0c666785-45c3-4cb6-a18e-27d20a547079" >
+			<when expression='#[payload.destination == "SFO"]'>
+				<ee:transform doc:name="Transform Message" doc:id="7cffd1af-c201-4ac9-b4ab-ab5b78ab140b" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/csv
+---
+payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<file:write doc:name="Write" doc:id="e9093e46-2ea8-4716-9f62-90be0e52dcd4" config-ref="File_Config" path="#[&quot;filename&quot; ++ '.' ++ (now() as String {format:&quot;yyyy_mm_dd HH_mm_ss&quot;}) ++ '.csv']" mode="CREATE_NEW">
+				</file:write>
+				<logger level="INFO" doc:name="Logger" doc:id="33da3761-f681-41fd-9069-f4d25c984920" message='#["success"]'/>
+			</when>
+			<otherwise >
+				<ee:transform doc:name="Transform Message" doc:id="4c60d5a2-16f1-40b0-890f-3599f5619fd4" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/xml
+---
+"data":payload]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+				<file:write doc:name="Write" doc:id="ad1673e6-688e-4856-869a-f90cae8d5eac" config-ref="File_Config" path="#[&quot;filename&quot; ++ '.' ++ (now() as String{format:&quot;yyyy_mm_dd HH_mm_ss&quot;}) ++ '.xml']" mode="CREATE_NEW"/>
+				<logger level="INFO" doc:name="Logger" doc:id="18309172-8c8a-4f8c-ad13-1a6128a99169" message='#["successful"]'/>
+			</otherwise>
+		</choice>
+		<error-handler ref="error" />
+    </flow>
+</mule>

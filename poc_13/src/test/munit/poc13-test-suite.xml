@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<munit:config name="poc13-test-suite.xml" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="915b5810-5143-4fcf-afc4-c69c58b13b37" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<munit:test name="poc13-test-suite-get:\poc13:poc13-configTest" doc:id="e61c6787-0cb4-4de2-af78-336aa779be5b" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="e24ba9f9-84bb-41bf-8dc0-b5b48bcf2ada" processor="file:read">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="87ee7cba-023f-4528-86ad-0ba1f6e6fc14" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('example/request.csv')]" mediaType="application/csv" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to get:\poc13:poc13-config" doc:id="4446d61e-5c9d-4e32-88b6-464eec39c40f" name="get:\poc13:poc13-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="f912a320-be77-4fd6-8e19-373f55dea717" expression="#[payload]" is='#[MunitTools::equalTo((readUrl("classpath://example/request.csv", "application/csv")))]'/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="poc13-test-suite-poc13-mainTest" doc:id="8807c27b-7525-4224-a924-f9cfec96a2b9" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="1ffe860f-692b-462c-b57f-ee35f5692286" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="poc13-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="f4b8a8d1-8cb8-4ce0-806f-e9be266b9ad6" >
+				<http:request method="GET" doc:name="Request" doc:id="39d91929-37c2-441b-bac3-dabc7243c8fd" config-ref="HTTP_Request_configuration" path="/api/poc13"/>
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="40146073-37e3-48c7-822f-bfca4b93ccaa" >
+						<ee:transform doc:name="Transform Message" doc:id="1de9de46-29e6-43bb-81cc-b3064060f067" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="940f891d-53da-4595-827b-693d7aad4802" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

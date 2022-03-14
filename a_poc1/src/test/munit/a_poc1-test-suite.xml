@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="a_poc1-test-suite.xml" />
+	<munit:test name="a_poc1-test-suite-a_poc1FlowTest" doc:id="f988e4f0-1855-4288-a9bc-e2e02014c737" description="Test">
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="6fcf8fdf-75d0-46a6-9c66-a5043c4cd0ab" processor="http:request">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="2b2c5931-2aca-4290-b9dc-66c26fd6397b" attributeName="doc:id" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:payload value="#[MunitTools::getResourceAsString('example/requestresponse.json')]" mediaType="application/json" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to a_poc1Flow" doc:id="fcb770df-5cf4-454e-83e8-4ae5409dcd1c" name="a_poc1Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b366a81d-06a7-4ff9-92ac-ed5df0cc71a2" is='#[MunitTools::equalTo((readUrl("classpath://example/requestresponse.json", "application/json")))]' expression="#[payload]"/>
+			<logger level="INFO" doc:name="Logger" doc:id="bf555ed6-d6b8-41d1-91fb-ccd8c3db435f" message="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="a_poc1-test-suite-a_poc1FlowTest1" doc:id="9331b5c1-f1d5-448f-b95f-96272d508002" description="Test">
+		<munit:execution >
+			<flow-ref doc:name="Flow-ref to a_poc1Flow" doc:id="e85788d7-d3a7-49c9-b74d-1e3918269b3e" name="a_poc1Flow"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="d4c0ad03-721d-417c-980f-b71e9c21bda8" expression="#[payload]" is='#[MunitTools::equalTo((readUrl("classpath://example/failureresponse.json", "application/json")))]'/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

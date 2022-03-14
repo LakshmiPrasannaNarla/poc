@@ -1,0 +1,17 @@
+#%RAML 1.0
+title: poc13
+/poc13:
+  get:
+    queryParameters:
+      country:
+        type: string
+        required: false
+    responses:
+      200:
+        body:
+          application/json:
+            example:
+              "code,price,origin,destination,departureDate,airlinesName,planeType,emptySeats,country
+ER38sa,468,MUA,PDX,21-05-2015,United,Boeing 738,0,Germany"
+  
+

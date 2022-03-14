@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="ab131c0a-695c-4ef8-b2c7-f4ff0efdb6b8" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="poc11Flow" doc:id="723a15fa-fcf4-4149-8ca6-573fd99cc376" >
+		<http:listener doc:name="Listener" doc:id="cb38b486-7286-46eb-9012-d36c5d5fa410" config-ref="HTTP_Listener_config" path="/path"/>
+		<ee:transform doc:name="Transform Message" doc:id="9b6760d6-63e1-415b-abbf-8d7096dc08e8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+var a = payload
+var result = sizeOf(a.address)
+---
+if(result <200){"Address1":a.address}
+else{
+"Address1":a.address[0 to 200],
+"Address2":a.address[201 to result-1]
+    }
+
+
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

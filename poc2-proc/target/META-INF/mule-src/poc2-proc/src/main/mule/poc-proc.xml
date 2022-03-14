@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit" xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+    
+    
+	<flow name="poc2-proc-main">
+        <http:listener config-ref="poc2-proc-httpListenerConfig" path="/api/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:router config-ref="poc2-proc-config" />
+		<error-handler ref="routererrors" />
+
+    </flow>
+    <flow name="poc2-proc-console">
+        <http:listener config-ref="poc2-proc-httpListenerConfig" path="/console/*">
+            <http:response statusCode="#[vars.httpStatus default 200]">
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:response>
+            <http:error-response statusCode="#[vars.httpStatus default 500]">
+                <http:body>#[payload]</http:body>
+                <http:headers>#[vars.outboundHeaders default {}]</http:headers>
+            </http:error-response>
+        </http:listener>
+        <apikit:console config-ref="poc2-proc-config" />
+		<error-handler ref="consoleerrors" />
+        
+    </flow>
+	<flow name="get:\flights:poc2-proc-config">
+		<set-variable value="#[attributes.queryParams.price as Number]" doc:name="name variable" doc:id="93f2a8d4-655c-4d6c-96cd-f254a5db0309" variableName="name"/>
+		<http:request method="GET" doc:name="sys-request" doc:id="e03e174e-28fe-4244-96a4-ae5a86546c78" config-ref="HTTP_Request_configuration" path="/api/flights" responseTimeout="3000000"/>
+		<ee:transform doc:name="filter the price" doc:id="326efcda-8f8c-48ad-9453-baf1cd273007" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload.flights filter($.price == vars.name)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="last logger" doc:id="32d08e1e-502f-4093-a112-85060a244c06" message="#[payload]"/>
+		<error-handler ref="globalerrors1" />
+    </flow>
+</mule>

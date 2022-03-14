@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<munit:config name="poc14-test-suite.xml" />
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="2989fd21-d8d9-46c9-b113-8e7550a44552" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<munit:test name="poc14-test-suite-get:\poc14:poc14-configTest" doc:id="53ad5bca-b533-4023-ad53-5681013985c7" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="b67c82e9-c018-400d-9c22-4d7434d47ead" >
+				<munit:payload value="20200909080000" mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to get:\poc14:poc14-config" doc:id="ca727c53-159f-4906-8e42-9dec42ce6cb6" name="get:\poc14:poc14-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="d54bbba1-febc-4ba6-a3e4-3da2bd0ab519" is='#[MunitTools::equalTo((readUrl("classpath://example/requestresponse.json", "application/json")))]' expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="poc14-test-suite-poc14-mainTest" doc:id="35f7f4f0-8952-4bbb-974b-2dd490cb1aba" description="Test">
+		<munit:enable-flow-sources >
+			<munit:enable-flow-source value="poc14-main" />
+		</munit:enable-flow-sources>
+		<munit:behavior >
+			<munit-tools:mock-when doc:name="Mock when" doc:id="cee15389-b6b9-45bd-9b5c-1b438795dbe7" processor="apikit:router">
+				<munit-tools:with-attributes >
+					<munit-tools:with-attribute whereValue="poc14-config" attributeName="config-ref" />
+				</munit-tools:with-attributes>
+				<munit-tools:then-return >
+					<munit-tools:error typeId="APIKIT:BAD_REQUEST" />
+				</munit-tools:then-return>
+			</munit-tools:mock-when>
+		</munit:behavior>
+		<munit:execution>
+			<try doc:name="Try" doc:id="da7fd808-cc85-4ae9-9277-177d51adb02c" >
+				<http:request method="GET" doc:name="Request" doc:id="d63511c7-2ccc-4fd6-9b3a-89ea7366363f" config-ref="HTTP_Request_configuration" path="/api/poc14" />
+				<error-handler >
+					<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="488c906e-e85a-480e-bc57-302e5241e711" >
+						<ee:transform doc:name="Transform Message" doc:id="2d9e30cd-b425-4372-9160-290a93887255" >
+							<ee:message >
+								<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</on-error-continue>
+				</error-handler>
+			</try>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="1ec1e447-d2a6-443f-9c48-7a4bc76d34d1" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

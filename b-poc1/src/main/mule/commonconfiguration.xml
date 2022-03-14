@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2f64fe35-27fc-4cda-afd7-9144dd258d49" >
+		<http:listener-connection host="0.0.0.0" port="8084" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="dfcef54c-f251-458d-8a8a-453e36c7f8c7" >
+		<http:request-connection host="system1.us-e2.cloudhub.io"/>
+	</http:request-config>
+	<configuration-properties doc:name="Configuration properties" doc:id="a6b0b09a-6d90-4fcf-8e82-a9e91b503901" file="properties\local.yaml" />
+	<configuration doc:name="Configuration" doc:id="7ac0f80f-6408-485e-a86a-f350e34e2863" defaultErrorHandler-ref="globalerrorsError_Handler" />
+
+</mule>
+	

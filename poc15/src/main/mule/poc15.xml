@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:batch="http://www.mulesoft.org/schema/mule/batch" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:salesforce="http://www.mulesoft.org/schema/mule/salesforce"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/salesforce http://www.mulesoft.org/schema/mule/salesforce/current/mule-salesforce.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/batch http://www.mulesoft.org/schema/mule/batch/current/mule-batch.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="35657360-e1d0-41e3-8f84-e6361ef599a3" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<salesforce:sfdc-config name="Salesforce_Config" doc:name="Salesforce Config" doc:id="c604cd78-f2a2-4d0b-9cb3-3fbb0a0d18d5" >
+		<salesforce:basic-connection username="prasannareddy4562@gmail.com" password="Prasanna@1" securityToken="j5Qe49Sdao0EKYb5M9kAxHZFJ" />
+	</salesforce:sfdc-config>
+	<flow name="poc15Flow" doc:id="91491c29-b4a7-47ac-84d2-f590da8913e4" >
+		<http:listener doc:name="Listener" doc:id="58368b60-1275-4eaf-aff8-82bdbc8b1093" config-ref="HTTP_Listener_config" path="/poc15"/>
+		<salesforce:query doc:name="Query" doc:id="e8f5ef74-e560-431c-b1b4-3c5fc928b1d7" config-ref="Salesforce_Config">
+			<salesforce:salesforce-query ><![CDATA[SELECT Address__c,Age__c,Name__c,Phone__c FROM prasanna_object__c]]></salesforce:salesforce-query>
+		</salesforce:query>
+		<ee:transform doc:name="Transform Message" doc:id="7644b1f1-0142-4977-8a0e-465cc842d8ad" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<batch:job jobName="poc15Batch_Job" doc:id="d1e74031-147e-4977-b9dc-58595cdca693" maxFailedRecords="-1">
+			<batch:process-records >
+				<batch:step name="Batch_Step" doc:id="5532840a-b484-481d-930e-4e1f7a348bfa" acceptPolicy="ALL" acceptExpression="payload.Age__c &lt; 30">
+					<set-variable value="#[payload]" doc:name="Set Variable" doc:id="a600398f-e1f3-4cd6-b956-f0160a5da0c9" variableName="step1"/>
+					<logger level="INFO" doc:name="Logger" doc:id="d4892f1e-8e5e-4060-81d7-0b022705e01b" message="#[vars.step1]"/>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="a02e9f78-ef27-47d5-a31f-0198cc38ec41" streaming="true">
+						<logger level="INFO" doc:name="Logger" doc:id="18a50137-97e1-461f-812b-94bb666f8049" message="#[payload]"/>
+					</batch:aggregator>
+				</batch:step>
+				<batch:step name="Batch_Step1" doc:id="550ee5a1-5d57-4988-bdeb-4c33c1ba6b98" acceptPolicy="ONLY_FAILURES" acceptExpression="payload.Age__c&gt;30">
+					<set-variable value="#[payload]" doc:name="Set Variable" doc:id="8d447faa-a981-44b0-8c0e-535e2387ed43" variableName="step2"/>
+					<logger level="INFO" doc:name="Logger" doc:id="038d1b33-692a-48c5-934e-5562b180d593" message="#[payload]"/>
+					<batch:aggregator doc:name="Batch Aggregator" doc:id="00562cf6-8b35-4681-9694-d92683fc8798" streaming="true">
+						<logger level="INFO" doc:name="Logger" doc:id="753c48ad-5abe-4900-bb77-59c5ba3bd45e" message="#[vars.step2]"/>
+					</batch:aggregator>
+				</batch:step>
+			</batch:process-records>
+			<batch:on-complete >
+				<logger level="INFO" doc:name="Logger" doc:id="ce59a689-4607-4225-a98f-a5cb2fda458a" message="#[payload]"/>
+			</batch:on-complete>
+		</batch:job>
+	</flow>
+</mule>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	<error-handler name="globalerrorsError_Handler" doc:id="46fe38ae-7cca-4423-9d81-a97e661d9d49" >
+		<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="fa44472a-d726-4532-b4a9-f29c726daec8" type="ANY">
+			<ee:transform doc:name="Transform Message" doc:id="53cfd713-f33d-40ec-b0a4-e6b8a849d015">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/java
+---
+{
+	"message":"error in system"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		</on-error-continue>
+	</error-handler>
+</mule>

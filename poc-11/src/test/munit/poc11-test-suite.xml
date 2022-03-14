@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="poc11-test-suite.xml" />
+	<munit:test name="poc11-test-suite-post:\poc11:application\json:poc11-configTest" doc:id="d5e28f64-2c17-48c2-9c9d-e9b4840fd342" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="95b0838d-c6a6-4cd9-9c43-3609138d8576" >
+				<munit:payload value='{&#10;    "address":"Mouritech Private Limited,Huda Techno Enclave,Survey No. 64,4th Floor,SBR Surya Pearl Sector III,IT Park,Madhapur,Hitech City Main Rd,Phase 2,Opposite to Mindspace,Top of Karachi Bakery and Burger king,HITEC City,Hyderabad,Telangana 500081"&#10;}' mediaType="application/json" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\poc11:application\json:poc11-config" doc:id="68db2607-b851-46fe-bdb4-481c3e5e4046" name="post:\poc11:application\json:poc11-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b4523849-00b9-4930-aeff-444a8d4264c4" is="#[MunitTools::notNullValue()]" expression="#[payload]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

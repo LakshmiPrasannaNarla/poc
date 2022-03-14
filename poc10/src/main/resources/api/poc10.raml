@@ -1,0 +1,16 @@
+#%RAML 1.0
+title: Poc10
+/poc10:
+  post:
+    body:
+      application/json:
+        example: !include example/example.raml
+    responses:
+      201:
+        body:
+          application/json:
+            example: !include example/example1.raml
+            
+
+              
+          

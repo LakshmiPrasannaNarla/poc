@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core" xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd">
+	
+	
+	<flow name="b-poc1Flow" doc:id="b34337f4-e068-4a0b-99d6-1aaf0926b25b" >
+		<http:listener doc:name="Listener" doc:id="21e78b37-cd6b-42a7-a8a9-b7d711c24b7b" config-ref="HTTP_Listener_config" path="/process">
+			<http:error-response >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<set-variable value="#[attributes.queryParams.destination]" doc:name="variable" doc:id="9851c692-daa4-4a4b-a994-ba3bd27914ea" variableName="dest"/>
+		<http:request method="GET" doc:name="system request" doc:id="61e234de-5a2d-4ac4-9544-89903a0b3fbb" config-ref="HTTP_Request_configuration" path="/path" responseTimeout="30000000"/>
+		<ee:transform doc:name="logic" doc:id="aa514718-3f15-42d6-b290-99406b8dbeaf" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+
+payload.flights filter($.destination == vars.dest)
+]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<logger level="INFO" doc:name="last logger" doc:id="57250a15-c502-44be-b903-9c27d28a0926" message="#[payload]"/>
+	</flow>
+</mule>

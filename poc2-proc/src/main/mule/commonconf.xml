@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:apikit="http://www.mulesoft.org/schema/mule/mule-apikit"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="
+http://www.mulesoft.org/schema/mule/mule-apikit http://www.mulesoft.org/schema/mule/mule-apikit/current/mule-apikit.xsd 
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd">
+	<http:listener-config name="poc2-proc-httpListenerConfig">
+        <http:listener-connection host="${http.host}" port="${http.port}" />
+    </http:listener-config>
+    
+    <apikit:config name="poc2-proc-config" api="poc2-proc.raml" outboundHeadersMapName="outboundHeaders" httpStatusVarName="httpStatus" />
+    <http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="8638a63a-4d8c-4181-88bf-43b84960e89d" >
+		<http:request-connection host="localhost" port="8081" />
+	</http:request-config>
+	<configuration doc:name="Configuration" doc:id="ce8137ca-5d60-437a-b70d-918f535cb91c" defaultErrorHandler-ref="globalerrors1" />
+	<configuration-properties doc:name="Configuration properties" doc:id="df744b91-409f-4e0b-a75e-83b38d046cf6" file="properties\local.yaml" />
+	
+	
+</mule>

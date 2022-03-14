@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:wsc="http://www.mulesoft.org/schema/mule/wsc" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/wsc http://www.mulesoft.org/schema/mule/wsc/current/mule-wsc.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="693150ac-2118-4e35-961c-3b2549eb781f" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="c5539743-cd9f-4caa-850b-3a06bcb40e06" >
+		<http:request-connection host="mu.mulesoft-training.com" />
+	</http:request-config>
+	<wsc:config name="Web_Service_Consumer_Config" doc:name="Web Service Consumer Config" doc:id="0dddf59f-eedd-4a4e-ae94-aa24cdbfc608" >
+		<wsc:connection wsdlLocation="http://mu.mulesoft-training.com/essentials/delta/flights?wsdl" service="TicketServiceService" port="TicketServicePort" address="http://mu.mulesoft-training.com/essentials/delta/flights">
+			<wsc:web-service-security actor="http://schemas.xmlsoap.org/soap/actor/next" />
+		</wsc:connection>
+	</wsc:config>
+	<flow name="poc7Flow" doc:id="c00c8636-bcd7-467e-9583-400da674dbb9" >
+		<http:listener doc:name="Listener" doc:id="b6ee6dfc-d9e0-4d04-8998-b0a13227267f" config-ref="HTTP_Listener_config" path="/path"/>
+		<scatter-gather doc:name="Scatter-Gather" doc:id="1e0d1fd1-fad4-49ae-8216-e163042b02a3" >
+			<route >
+				<choice doc:name="Choice" doc:id="fd75e155-93f6-4b44-8ae7-b101d8cddf66" >
+					<when expression="#[attributes.queryParams.destination != null]">
+						<ee:transform doc:name="Transform Message" doc:id="58ebf366-e011-4d21-ad3a-a247a74e2eec">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0output application/xmlns ns0 http://soap.training.mulesoft.com/---{ns0#findFlight:{destination: attributes.queryParams.destination}}]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+						<wsc:consume doc:name="Consume" doc:id="cacabd72-d439-4ddc-bd4d-305fa8f3cf0b" config-ref="Web_Service_Consumer_Config" operation="findFlight" />
+						<ee:transform doc:name="Transform Message" doc:id="bc5459e9-2fb9-4913-a1e2-685d947551de">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"deltflights":payload.body.findFlightResponse.*return
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</when>
+					<otherwise >
+						<wsc:consume operation="listAllFlights" doc:name="Consume" doc:id="994ff652-ba77-4ec3-8aa1-3013201e13a9" config-ref="Web_Service_Consumer_Config" />
+						<ee:transform doc:name="Transform Message" doc:id="65c3994e-e2f4-423f-94ad-27179588873f">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"deltflights":payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</otherwise>
+				</choice>
+			</route>
+			<route >
+				<choice doc:name="Choice" doc:id="2a254f65-e128-4e83-867e-bd4916e9db46">
+					<when expression="#[attributes.queryParams.destination != null]">
+						<set-variable value="#[attributes.queryParams.destination]" doc:name="Set Variable" doc:id="99cdaf3e-a425-467a-a826-173dab50cfd5" variableName="name" />
+						<http:request method="GET" doc:name="Request" doc:id="b30f70f3-b1e4-47d0-bb3e-f70f989a9319" config-ref="HTTP_Request_configuration" path="/essentials/united/flights" >
+							<http:query-params ><![CDATA[#[output application/java
+---
+{
+	"destination" : attributes.queryParams.destination
+}]]]></http:query-params>
+						</http:request>
+						<ee:transform doc:name="Transform Message" doc:id="25c06f95-a75f-4fb8-908c-7ab4158aca47">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"united":payload.flights filter $.destination == vars.name
+]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</when>
+					<otherwise>
+						<http:request method="GET" doc:name="Request" doc:id="7cdc4ce2-e951-4fa0-b3bb-cfc5069c4ec5" config-ref="HTTP_Request_configuration" path="/essentials/united/flights" />
+						<ee:transform doc:name="Transform Message" doc:id="2977b75a-2b91-4625-9bb6-5ca4d75feed7">
+							<ee:message>
+								<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"united":payload]]></ee:set-payload>
+							</ee:message>
+						</ee:transform>
+					</otherwise>
+				</choice>
+			</route>
+		</scatter-gather>
+		<ee:transform doc:name="Transform Message" doc:id="3d7b8e1d-7f39-42c2-839c-c28db9901988">
+			<ee:message>
+				<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+flatten (payload..payload)]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="f9b58304-3207-4063-855a-78ecfec91dda" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	(payload)
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+	</flow>
+</mule>

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="fffbd16b-ac6f-49db-bbc4-fc936de04c56" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="poc18Flow" doc:id="335729b5-f1af-405e-b620-bb20d1185810" >
+		<http:listener doc:name="Listener" doc:id="996534a9-4420-4b29-983e-48ff9b7d61ec" config-ref="HTTP_Listener_config" path="/poc18"/>
+		<set-payload value='#[[&#10;{ &#10;                "name": "John", &#10;                "age": 31, &#10;                "city": "New York",&#10;                "empId": "123",&#10;                "dept": "Mechancial"&#10;},&#10;{ &#10;                "name": "Alp", &#10;                "age": 23, &#10;                "city": "Hyderabad",&#10;                "empId": "123",&#10;                "dept": "Computers"&#10;},&#10;{ &#10;                "name": "Siva", &#10;                "age": 35, &#10;                "city": "London",&#10;                "empId": "123",&#10;                "dept": "Electrical"&#10;}&#10;]]' doc:name="Set Payload" doc:id="d921b277-1800-4d92-8d79-6a3e4e83f7f7" />
+		<set-variable value="#[payload.name]" doc:name="Set Variable" doc:id="14b4b683-dbe4-40b3-93c9-20a808adb7ca" variableName="name"/>
+		<set-payload value="#[vars.name]" doc:name="Set Payload" doc:id="e2ee6167-e481-4f92-8ab1-fdf0f116f792" />
+		<logger level="INFO" doc:name="Logger" doc:id="809af20a-8086-4d4f-a315-b73d6bb23466" message="#[payload]"/>
+	</flow>
+</mule>

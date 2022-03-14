@@ -1,0 +1,37 @@
+{
+  "configs": [
+    "commonconf.xml",
+    "poc-proc.xml",
+    "poc-proc-test-suite.xml",
+    "globalerrors.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:poc2-proc:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.4.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedResources": [
+        "api/example/example.raml",
+        "api/poc2-proc.raml",
+        "application-types.xml",
+        "commonconf.xml",
+        "globalerrors.xml",
+        "log4j2.xml",
+        "poc-proc.xml",
+        "properties/local.yaml",
+        "example/request.json",
+        "example/requestresponse.json",
+        "log4j2-test.xml"
+      ],
+      "includeTestDependencies": "true",
+      "exportedPackages": []
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

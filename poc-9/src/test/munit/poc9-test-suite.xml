@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:munit="http://www.mulesoft.org/schema/mule/munit" xmlns:munit-tools="http://www.mulesoft.org/schema/mule/munit-tools"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xsi:schemaLocation="
+		http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+		http://www.mulesoft.org/schema/mule/munit http://www.mulesoft.org/schema/mule/munit/current/mule-munit.xsd
+		http://www.mulesoft.org/schema/mule/munit-tools  http://www.mulesoft.org/schema/mule/munit-tools/current/mule-munit-tools.xsd">
+	<munit:config name="poc9-test-suite.xml" />
+	<munit:test name="poc9-test-suite-post:\resource:poc9-configTest" doc:id="27471638-35e4-4782-ad34-c38c497942e3" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="b5551cd3-e55f-4471-9a3a-8735ad0fe072" >
+				<munit:payload value='{&#10;      "code": "ER38sd",&#10;      "price": 400,&#10;      "origin": "MUA",&#10;      "destination": "SFO",&#10;      "departureDate": "2015/03/20",&#10;      "airlineName": "United",&#10;      "planeType": "Boeing 737",&#10;      "emptySeats": 0&#10;    }&#10;' mediaType="application/json" />
+				<munit:attributes value="#[{queryParams:{'destination':'SFO'}}]" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\resource:poc9-config" doc:id="67140f4a-3237-4337-87ef-0dfd3b4501d5" name="post:\resource:poc9-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="b7c9578c-2ab7-45fc-9e90-05f34a9a0f79" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+	<munit:test name="poc9-test-suite-post:\resource:poc9-configTest1" doc:id="4b99ec96-3deb-4f8b-85f4-6814c11fd62b" description="Test">
+		<munit:execution >
+			<munit:set-event doc:name="Set Event" doc:id="b399cb64-64be-40f0-8fcb-72a1b555a717" >
+				<munit:payload value='{&#10;      "code": "ER38sd",&#10;      "price": 400,&#10;      "origin": "MUA",&#10;      "destination": "",&#10;      "departureDate": "2015/03/20",&#10;      "airlineName": "United",&#10;      "planeType": "Boeing 737",&#10;      "emptySeats": 0&#10;    }&#10;' mediaType="application/json" />
+				<munit:attributes value="&#10;" />
+			</munit:set-event>
+			<flow-ref doc:name="Flow-ref to post:\resource:poc9-config" doc:id="6fd281cd-02bc-4866-9cf5-6cce62b30f27" name="post:\resource:poc9-config"/>
+		</munit:execution>
+		<munit:validation >
+			<munit-tools:assert-that doc:name="Assert that" doc:id="3cce5c70-ff23-42a5-b7dc-f6e7a8543249" expression="#[payload]" is="#[MunitTools::notNullValue()]"/>
+		</munit:validation>
+	</munit:test>
+
+
+</mule>

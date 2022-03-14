@@ -1,0 +1,30 @@
+{
+  "configs": [
+    "b-poc1.xml",
+    "globalerrors.xml",
+    "commonconfiguration.xml"
+  ],
+  "secureProperties": [],
+  "redeploymentEnabled": true,
+  "name": "com.mycompany:b-poc1:1.0.0-SNAPSHOT",
+  "minMuleVersion": "4.4.0",
+  "requiredProduct": "MULE_EE",
+  "classLoaderModelLoaderDescriptor": {
+    "id": "mule",
+    "attributes": {
+      "exportedPackages": [],
+      "exportedResources": [
+        "application-types.xml",
+        "b-poc1.xml",
+        "commonconfiguration.xml",
+        "globalerrors.xml",
+        "log4j2.xml",
+        "properties/local.yaml"
+      ]
+    }
+  },
+  "bundleDescriptorLoader": {
+    "id": "mule",
+    "attributes": {}
+  }
+}

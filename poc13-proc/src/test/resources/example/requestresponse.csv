@@ -1,0 +1,5 @@
+code	price	origin	destination	departureDate	airlinesName	planeType	emptySeats	country
+ER38sa	468	MUA	SFO	21-05-2015	United	Boeing 738	0	India
+								
+code	price	origin	destination	departureDate	airlinesName	planeType	emptySeats	country
+ER38sa	468	MUA	PDX	21-05-2015	United	Boeing 738	0	Germany

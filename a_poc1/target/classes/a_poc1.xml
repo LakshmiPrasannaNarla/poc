@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:http="http://www.mulesoft.org/schema/mule/http" xmlns="http://www.mulesoft.org/schema/mule/core"
+	xmlns:doc="http://www.mulesoft.org/schema/mule/documentation"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd">
+	
+	
+	<flow name="a_poc1Flow" doc:id="59de543e-c35a-4307-82df-18a0b9c359cc" >
+		<http:listener doc:name="Listener" doc:id="651bac69-6d78-4850-896f-9af30dfec5f3" config-ref="HTTP_Listener_config" path="/path">
+			<http:error-response >
+				<http:body ><![CDATA[#[payload]]]></http:body>
+			</http:error-response>
+		</http:listener>
+		<http:request method="GET" doc:name="Request flight url" doc:id="2b2c5931-2aca-4290-b9dc-66c26fd6397b" path="/essentials/united/flights" config-ref="HTTP_Request_configuration"/>
+		<logger level="INFO" doc:name="logger print in the console" doc:id="2c63014c-b2f4-4992-8799-23e8c40a0d47" message="#[payload]"/>
+	</flow>
+</mule>
